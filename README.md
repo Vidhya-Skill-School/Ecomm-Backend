@@ -1,10 +1,10 @@
 # 🛒 Ecommerce App
 
-![Node](https://img.shields.io/badge/Node.js-v18%2B-white?logo=node.js)
+![Node](https://img.shields.io/badge/Node.js-white?logo=node.js)
 ![Fastify](https://img.shields.io/badge/Fastify-High%20Performance-black?logo=fastify)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-blue?logo=sqlite)
 ![JWT](https://img.shields.io/badge/Auth-JWT-red?logo=jsonwebtokens)
-![License](https://img.shields.io/badge/License-ISC-lightgrey)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 
 > ⚡ A **complete production-grade ecommerce backend API** with authentication, cart management, order processing, and payment workflow built with Fastify + SQLite
