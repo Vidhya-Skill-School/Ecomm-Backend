@@ -322,7 +322,7 @@ Authorization: Bearer <access_token>
 
 ### Setup
 
-1. Import `backend-ecomm.postman_collection.json`
+1. Import `postman-collection.json`
 2. Set collection variable:
    ```
    baseUrl = http://localhost:3001
