@@ -1,0 +1,16 @@
+node_modules/
+ecommerce.db
+*.log
+.DS_Store
+.env
+.env.local
+dist/
+build/
+*.swp
+*.swo
+*~
+.vscode/settings.json
+coverage/
+html
+.vitest/
+.vscode/

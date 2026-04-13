@@ -1,0 +1,15 @@
+{
+  "include": [
+    "src/**/*.js",
+    "src/*.js"
+  ],
+  "exclude": [
+    "**/*.config.js",
+    "src/services/rateLimiting.js",
+    "src/services/authMiddleware.js",
+    "src/index.js"
+  ],
+  "reporter": ["text", "html", "lcov"],
+  "all": true,
+  "skipFull": false
+}

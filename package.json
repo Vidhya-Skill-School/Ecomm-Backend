@@ -1,0 +1,50 @@
+{
+  "name": "backend-ecommerce",
+  "version": "1.0.0",
+  "description": "E-commerce API with Fastify",
+  "main": "./src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "seed": "node src/services/seed.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui",
+    "test:e2e": "NODE_ENV=test vitest run test/routes/*.e2e.test.js",
+    "test:e2e:watch": "NODE_ENV=test vitest watch test/routes/*.e2e.test.js",
+    "test:coverage:detailed": "NODE_ENV=test vitest run --coverage --coverage.reporter=html --coverage.reporter=text --coverage.reporter=json --coverage.reporter=lcov test/routes/*.test.js",
+    "clean": "rm -rf coverage .vitest",
+    "test:coverage": "NODE_ENV=test vitest run --coverage test/routes/*.test.js",
+    "test:coverage:all": "NODE_ENV=test vitest run --coverage test/**/*.test.js",
+    "test:coverage:edge": "NODE_ENV=test vitest run --coverage test/**/*.edge-cases.test.js",
+    "test:coverage:html": "NODE_ENV=test vitest run --coverage --coverage.reporter=html test/**/*.test.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "fastify",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
+    "@libsql/client": "^0.17.2",
+    "@vitest/ui": "^4.1.4",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.8.2",
+    "jsonwebtoken": "^9.0.3",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^4.1.4",
+    "@vitest/coverage-v8": "^4.1.4",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.4"
+  }
+}
