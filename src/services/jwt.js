@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 // In production, use environment variables
 const JWT_SECRET =
@@ -32,6 +32,7 @@ function verifyAccessToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
+    console.log("Access token verification failed:", error.message);
     return null;
   }
 }
@@ -43,6 +44,7 @@ function verifyRefreshToken(token) {
   try {
     return jwt.verify(token, REFRESH_TOKEN_SECRET);
   } catch (error) {
+    console.log("Refresh token verification failed:", error.message);
     return null;
   }
 }
@@ -69,7 +71,7 @@ function verifyPassword(password, storedHash) {
   return hash === hashVerify;
 }
 
-module.exports = {
+export {
   generateAccessToken,
   generateRefreshToken,
   verifyAccessToken,

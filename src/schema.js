@@ -234,7 +234,7 @@ const errorResponse = (code) => ({
   },
 });
 
-module.exports = {
+export {
   productSchema,
   productsQuerySchema,
   signupSchema,

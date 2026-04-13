@@ -1,4 +1,4 @@
-const { db } = require("../db");
+import { db } from "../db.js";
 
 /**
  * Create user session
@@ -142,7 +142,7 @@ async function createUser(email, name, phone, hashedPassword) {
   return result.lastInsertRowid;
 }
 
-module.exports = {
+export {
   createSession,
   validateAccessToken,
   validateRefreshToken,

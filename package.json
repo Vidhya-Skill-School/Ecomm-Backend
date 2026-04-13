@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "E-commerce API with Fastify",
   "main": "./src/index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "seed": "node src/services/seed.js",
     "test": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint . --max-warnings=0",
     "test:run": "vitest run",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",
@@ -18,7 +21,13 @@
     "test:coverage": "NODE_ENV=test vitest run --coverage test/routes/*.test.js",
     "test:coverage:all": "NODE_ENV=test vitest run --coverage test/**/*.test.js",
     "test:coverage:edge": "NODE_ENV=test vitest run --coverage test/**/*.edge-cases.test.js",
-    "test:coverage:html": "NODE_ENV=test vitest run --coverage --coverage.reporter=html test/**/*.test.js"
+    "test:coverage:html": "NODE_ENV=test vitest run --coverage --coverage.reporter=html test/**/*.test.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
   },
   "keywords": [
     "ecommerce",
@@ -41,8 +50,13 @@
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-istanbul": "^4.1.4",
     "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "vitest": "^4.1.4"

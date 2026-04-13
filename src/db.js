@@ -1,5 +1,5 @@
-const { createClient } = require("@libsql/client");
-const path = require("path");
+import { createClient } from "@libsql/client";
+import path from "path";
 
 // Use in-memory database for tests, file-based for development
 const isTest = process.env.NODE_ENV === "test";
@@ -7,7 +7,11 @@ const isTest = process.env.NODE_ENV === "test";
 const db = createClient({
   url: isTest
     ? "file::memory:"
-    : "file:" + path.join(__dirname, "ecommerce.db"),
+    : "file:" +
+      path.join(
+        path.dirname(import.meta.url.replace("file://", "")),
+        "ecommerce.db",
+      ),
 });
 
 /**
@@ -847,7 +851,7 @@ async function bulkInsertProducts(products) {
   }
 }
 
-module.exports = {
+export {
   db,
   initializeDatabase,
   getProducts,

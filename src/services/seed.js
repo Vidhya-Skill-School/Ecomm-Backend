@@ -1,12 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const readline = require("readline");
-const {
+import fs from "fs";
+import path from "path";
+import readline from "readline";
+import {
   initializeDatabase,
   clearProducts,
   bulkInsertProducts,
   db,
-} = require("../db");
+} from "../db.js";
 
 // Inline ANSI colors — no extra dependency needed
 const red = (s) => `\x1b[31m${s}\x1b[0m`;
@@ -407,4 +407,4 @@ if (require.main === module) {
   seedDatabase();
 }
 
-module.exports = { seedDatabase, clearAllData, createFirstUser };
+export { seedDatabase, clearAllData, createFirstUser };

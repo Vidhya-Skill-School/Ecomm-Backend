@@ -1,5 +1,4 @@
-const rateLimit = require("@fastify/rate-limit");
-
+import rateLimit from "@fastify/rate-limit";
 const isTest = process.env.NODE_ENV === "test";
 
 async function setupRateLimiting(fastify) {
@@ -28,4 +27,4 @@ async function setupRateLimiting(fastify) {
   });
 }
 
-module.exports = { setupRateLimiting };
+export { setupRateLimiting };

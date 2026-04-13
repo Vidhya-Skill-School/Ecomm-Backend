@@ -1,39 +1,30 @@
-const fastify = require("fastify")({
-  logger: true, // Change from false to true
-  ajv: {
-    customOptions: {
-      coerceTypes: "array",
-      removeAdditional: "all",
-      useDefaults: true,
-      allErrors: true,
-    },
-  },
-});
+import fastifyModule from "fastify";
+import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
 
-const cors = require("@fastify/cors");
-const swagger = require("@fastify/swagger");
-const swaggerUI = require("@fastify/swagger-ui");
-
-const {
+import {
   generateAccessToken,
   generateRefreshToken,
   hashPassword,
   verifyPassword,
-} = require("./services/jwt.js");
-const {
+} from "./services/jwt.js";
+
+import {
   createSession,
   validateRefreshToken,
   updateSessionTokens,
   invalidateSession,
-  invalidateAllUserSessions,
+  // invalidateAllUserSessions,
   getUserByEmail,
   getUserById,
   createUser,
-} = require("./services/session.js");
-const { setupRateLimiting } = require("./services/rateLimiting.js");
-const { authMiddleware } = require("./services/authMiddleware.js");
+} from "./services/session.js";
 
-const {
+import { setupRateLimiting } from "./services/rateLimiting.js";
+import { authMiddleware } from "./services/authMiddleware.js";
+
+import {
   initializeDatabase,
   getProducts,
   getProductById,
@@ -55,9 +46,9 @@ const {
   returnOrder,
   getUserOrders,
   getOrderById,
-} = require("./db.js");
+} from "./db.js";
 
-const {
+import {
   productSchema,
   productCreateSchema,
   productUpdateSchema,
@@ -67,15 +58,24 @@ const {
   refreshTokenSchema,
   addToCartSchema,
   updateCartSchema,
-  removeFromCartSchema,
   cartResponseSchema,
   checkoutSchema,
   confirmOrderSchema,
   cancelOrderSchema,
   returnOrderSchema,
-  orderSchema,
-  errorResponse,
-} = require("./schema.js");
+} from "./schema.js";
+
+const fastify = fastifyModule({
+  logger: true,
+  ajv: {
+    customOptions: {
+      coerceTypes: "array",
+      removeAdditional: "all",
+      useDefaults: true,
+      allErrors: true,
+    },
+  },
+});
 
 // Track initialization to prevent multiple initializations in test environment
 const isTest = process.env.NODE_ENV === "test";
@@ -182,6 +182,7 @@ async function registerPlugins() {
         { name: "Products" },
         { name: "Cart" },
         { name: "Orders" },
+        { name: "Checkout" },
         { name: "Statistics" },
       ],
       servers: [{ url: "http://localhost:3001" }],
@@ -502,6 +503,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Cart"],
         body: addToCartSchema,
         response: { 200: cartResponseSchema },
       },
@@ -518,7 +520,10 @@ function registerRoutes() {
     "/cart",
     {
       preHandler: [fastify.authenticate],
-      schema: { response: { 200: cartResponseSchema } },
+      schema: {
+        tags: ["Cart"],
+        response: { 200: cartResponseSchema },
+      },
     },
     async (req) => {
       const userId = req.user.id.toString();
@@ -531,6 +536,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Cart"],
         params: {
           type: "object",
           required: ["cartId"],
@@ -555,6 +561,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Cart"],
         params: {
           type: "object",
           required: ["cartId"],
@@ -577,6 +584,9 @@ function registerRoutes() {
     "/cart",
     {
       preHandler: [fastify.authenticate],
+      schema: {
+        tags: ["Cart"],
+      },
     },
     async (req, reply) => {
       const userId = req.user.id.toString();
@@ -590,7 +600,7 @@ function registerRoutes() {
     "/checkout",
     {
       preHandler: [fastify.authenticate],
-      schema: { body: checkoutSchema },
+      schema: { body: checkoutSchema, tags: ["Checkout"] },
     },
     async (req, reply) => {
       const userId = req.user.id.toString();
@@ -605,6 +615,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["checkoutId"],
@@ -626,6 +637,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["checkoutId"],
@@ -647,6 +659,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["orderId"],
@@ -664,6 +677,7 @@ function registerRoutes() {
     "/orders/track/:orderNumber",
     {
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["orderNumber"],
@@ -682,6 +696,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["orderId"],
@@ -703,6 +718,9 @@ function registerRoutes() {
     "/orders",
     {
       preHandler: [fastify.authenticate],
+      schema: {
+        tags: ["Orders"],
+      },
     },
     async (req) => {
       const userId = req.user.id.toString();
@@ -715,6 +733,7 @@ function registerRoutes() {
     {
       preHandler: [fastify.authenticate],
       schema: {
+        tags: ["Orders"],
         params: {
           type: "object",
           required: ["orderId"],
@@ -734,12 +753,16 @@ function registerRoutes() {
   );
 
   // Statistics Routes
-  fastify.get("/categories", async () => getCategories());
-  fastify.get("/statistics", async () => getStatistics());
-  fastify.get("/health", async () => ({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  }));
+  fastify.get("/categories", { schema: { tags: ["Products"] } }, async () =>
+    getCategories(),
+  );
+  fastify.get("/statistics", { schema: { tags: ["Products"] } }, async () =>
+    getStatistics(),
+  );
+  // fastify.get("/health", { schema: { tags: ["Statistics"] } }, async () => ({
+  //   status: "ok",
+  //   timestamp: new Date().toISOString(),
+  // }));
 }
 
 async function initializeApp() {
@@ -759,4 +782,4 @@ async function initializeApp() {
   return fastify;
 }
 
-module.exports = { initializeApp, fastify };
+export { initializeApp, fastify };

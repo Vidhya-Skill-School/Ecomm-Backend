@@ -1,4 +1,4 @@
-const { validateAccessToken } = require("./session");
+import { validateAccessToken } from "./session.js";
 
 async function authMiddleware(fastify) {
   fastify.decorate("authenticate", async (request, reply) => {
@@ -44,4 +44,4 @@ async function authMiddleware(fastify) {
   });
 }
 
-module.exports = { authMiddleware };
+export { authMiddleware };

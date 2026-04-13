@@ -1,4 +1,4 @@
-const { initializeApp } = require("./app");
+import { initializeApp } from "./app.js";
 
 void (async () => {
   try {
