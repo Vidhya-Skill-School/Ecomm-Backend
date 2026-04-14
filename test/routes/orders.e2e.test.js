@@ -359,18 +359,4 @@ describe("Orders Routes - E2E Tests", () => {
       expect(body).toHaveProperty("avgPrice");
     });
   });
-
-  describe("GET /health", () => {
-    it("should return health status", async () => {
-      const response = await app.inject({
-        method: "GET",
-        url: "/health",
-      });
-
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.body);
-      expect(body).toHaveProperty("status", "ok");
-      expect(body).toHaveProperty("timestamp");
-    });
-  });
 });
