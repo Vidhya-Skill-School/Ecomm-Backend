@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
+import { fileURLToPath } from "node:url";
 import db from "../db/connection.js";
 import { runMigrations } from "../db/migrate.js";
 import { ProductService } from "../modules/products/products.service.js";
@@ -12,6 +13,12 @@ const green = (s) => `\x1b[32m${s}\x1b[0m`;
 const yellow = (s) => `\x1b[33m${s}\x1b[0m`;
 
 const PRODUCTS_FILE = path.join(process.cwd(), "src", "data", "products.json");
+
+/**
+ * Detect if we are in an interactive terminal.
+ * This prevents the script from hanging in CI/CD or background processes.
+ */
+const INTERACTIVE = process.stdin.isTTY && process.stdout.isTTY;
 
 // ─── readline interface (recreated as needed) ────────────────────────────────
 let rl = null;
@@ -308,9 +315,9 @@ async function seedDatabase() {
     await runMigrations();
     console.log("✓ Database initialized\n");
 
-    const clearExisting = await askQuestion(
-      "Do you want to clear all existing data? (y/N): ",
-    );
+    const clearExisting = INTERACTIVE
+      ? await askQuestion("Do you want to clear all existing data? (y/N): ")
+      : "n";
 
     if (clearExisting.toLowerCase() === "y") {
       await clearAllData();
@@ -328,9 +335,9 @@ async function seedDatabase() {
       const products = JSON.parse(data);
       console.log(`✓ Loaded ${products.length} products from products.json`);
 
-      const seedProducts = await askQuestion(
-        "Do you want to seed products? (Y/n): ",
-      );
+      const seedProducts = INTERACTIVE
+        ? await askQuestion("Do you want to seed products? (Y/n): ")
+        : "y";
 
       if (seedProducts.toLowerCase() !== "n") {
         await productService.deleteAllProducts();
@@ -381,9 +388,9 @@ async function seedDatabase() {
 
     console.log("");
 
-    const createUser = await askQuestion(
-      "Do you want to create your first user? (Y/n): ",
-    );
+    const createUser = INTERACTIVE
+      ? await askQuestion("Do you want to create your first user? (Y/n): ")
+      : "n";
 
     if (createUser.toLowerCase() !== "n") {
       await createFirstUser();
@@ -400,7 +407,10 @@ async function seedDatabase() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// ─── Direct execution check ──────────────────────────────────────────────────
+const isMainModule = fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isMainModule) {
   seedDatabase();
 }
 
