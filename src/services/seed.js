@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import { pathToFileURL } from "url";
+import { hashPassword } from "./jwt.js";
 import {
   initializeDatabase,
   clearProducts,
@@ -219,8 +221,6 @@ async function clearAllData() {
 
 // ─── Create first user ────────────────────────────────────────────────────────
 async function createFirstUser() {
-  const { hashPassword } = require("./jwt");
-
   console.log("\n📝 Create First User");
   console.log("==================");
 
@@ -311,9 +311,11 @@ async function seedDatabase() {
     await initializeDatabase();
     console.log("✓ Database initialized\n");
 
-    const clearExisting = await askQuestion(
-      "Do you want to clear all existing data? (y/N): ",
-    );
+    const interactive = process.stdin.isTTY && process.stdout.isTTY;
+
+    const clearExisting = interactive
+      ? await askQuestion("Do you want to clear all existing data? (y/N): ")
+      : "n";
 
     if (clearExisting.toLowerCase() === "y") {
       await clearAllData();
@@ -331,9 +333,9 @@ async function seedDatabase() {
       const products = JSON.parse(data);
       console.log(`✓ Loaded ${products.length} products from products.json`);
 
-      const seedProducts = await askQuestion(
-        "Do you want to seed products? (Y/n): ",
-      );
+      const seedProducts = interactive
+        ? await askQuestion("Do you want to seed products? (Y/n): ")
+        : "y";
 
       if (seedProducts.toLowerCase() !== "n") {
         await clearProducts();
@@ -384,9 +386,9 @@ async function seedDatabase() {
 
     console.log("");
 
-    const createUser = await askQuestion(
-      "Do you want to create your first user? (Y/n): ",
-    );
+    const createUser = interactive
+      ? await askQuestion("Do you want to create your first user? (Y/n): ")
+      : "n";
 
     if (createUser.toLowerCase() !== "n") {
       await createFirstUser();
@@ -403,7 +405,7 @@ async function seedDatabase() {
   }
 }
 
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   seedDatabase();
 }
 
