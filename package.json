@@ -1,5 +1,5 @@
 {
-  "name": "backend-ecommerce",
+  "name": "ecommerce-backend",
   "version": "1.0.0",
   "description": "E-commerce API with Fastify",
   "main": "./src/index.js",
