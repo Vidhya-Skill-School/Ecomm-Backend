@@ -4,6 +4,9 @@ import helmet from "@fastify/helmet";
 import crypto from "node:crypto";
 import { env } from "./config/env.js";
 
+import compress from "@fastify/compress";
+import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
+
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import { readFileSync } from "node:fs";
@@ -31,7 +34,9 @@ import healthRoutes from "./modules/health/health.routes.js";
 
 const fastify = fastifyModule({
   logger: false, // Using custom logger plugin
-  ignoreTrailingSlash: true,
+  routerOptions: {
+    ignoreTrailingSlash: true,
+  },
   genReqId: (req) => req.headers["x-request-id"] || crypto.randomUUID(),
   ajv: {
     customOptions: {
@@ -42,6 +47,9 @@ const fastify = fastifyModule({
     },
   },
 });
+
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
 
 const isTest = env.NODE_ENV === "test";
 let initialized = false;
@@ -57,12 +65,13 @@ async function initializeApp() {
 
   // 1. Initializations
   await runMigrations();
+  await fastify.register(compress, { global: true });
 
   // 2. Global Security & Infrastructure (Register FIRST to avoid route interference)
   await fastify.register(dbPlugin);
   await fastify.register(loggerPlugin);
-  
-  await fastify.register(helmet, { contentSecurityPolicy: false }); 
+
+  await fastify.register(helmet, { contentSecurityPolicy: false });
   await fastify.register(cors, { origin: env.CORS_ORIGIN });
 
   if (!isTest) {
@@ -111,14 +120,14 @@ async function initializeApp() {
   // so we serve each file explicitly — same pattern as the working swagger-initializer.js route.
   const swaggerStaticDir = join("/app/node_modules/@fastify/swagger-ui", "static");
   const swaggerAssets = [
-    { file: "swagger-ui.css",                  mime: "text/css; charset=UTF-8" },
-    { file: "index.css",                        mime: "text/css; charset=UTF-8" },
-    { file: "swagger-ui-bundle.js",             mime: "application/javascript; charset=UTF-8" },
-    { file: "swagger-ui-standalone-preset.js",  mime: "application/javascript; charset=UTF-8" },
-    { file: "swagger-ui.js",                    mime: "application/javascript; charset=UTF-8" },
-    { file: "favicon-32x32.png",                mime: "image/png" },
-    { file: "favicon-16x16.png",                mime: "image/png" },
-    { file: "logo.svg",                         mime: "image/svg+xml" },
+    { file: "swagger-ui.css", mime: "text/css; charset=UTF-8" },
+    { file: "index.css", mime: "text/css; charset=UTF-8" },
+    { file: "swagger-ui-bundle.js", mime: "application/javascript; charset=UTF-8" },
+    { file: "swagger-ui-standalone-preset.js", mime: "application/javascript; charset=UTF-8" },
+    { file: "swagger-ui.js", mime: "application/javascript; charset=UTF-8" },
+    { file: "favicon-32x32.png", mime: "image/png" },
+    { file: "favicon-16x16.png", mime: "image/png" },
+    { file: "logo.svg", mime: "image/svg+xml" },
   ];
 
   for (const { file, mime } of swaggerAssets) {
@@ -131,7 +140,7 @@ async function initializeApp() {
   await fastify.register(schemaPlugin);
   await fastify.register(servicesPlugin);
   await fastify.register(observabilityPlugin);
-  
+
   // 4. Security & Authentication Middleware
   await authMiddleware(fastify);
 
@@ -143,7 +152,7 @@ async function initializeApp() {
 
   // 7. Domain-Driven Modules (Plug & Play with Versioning)
   const apiV1Prefix = { prefix: "/api/v1" };
-  
+
   await fastify.register(authRoutes, apiV1Prefix);
   await fastify.register(productRoutes, apiV1Prefix);
   await fastify.register(cartRoutes, apiV1Prefix);

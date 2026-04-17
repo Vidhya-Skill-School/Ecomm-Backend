@@ -1,6 +1,8 @@
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: development
     container_name: EC-Backend-App
     ports:
       - "3001:3001"
@@ -9,6 +11,8 @@ services:
     environment:
       - HOST=0.0.0.0
       - ELASTICSEARCH_URL=http://ec-elastic-search:9200
+    volumes:
+      - ./src:/app/src
     depends_on:
       elasticsearch:
         condition: service_healthy
