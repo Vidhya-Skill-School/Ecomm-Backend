@@ -4,6 +4,11 @@ import helmet from "@fastify/helmet";
 import crypto from "node:crypto";
 import { env } from "./config/env.js";
 
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 // Services/Helpers
 import { setupRateLimiting } from "./services/rateLimiting.js";
 import { authMiddleware } from "./services/authMiddleware.js";
@@ -16,7 +21,6 @@ import dbPlugin from "./plugins/dbPlugin.js";
 import schemaPlugin from "./plugins/schemaPlugin.js";
 import servicesPlugin from "./plugins/servicesPlugin.js";
 import observabilityPlugin from "./plugins/observabilityPlugin.js";
-import swaggerPlugin from "./plugins/swagger.js";
 
 // Domain Modules
 import authRoutes from "./modules/auth/auth.routes.js";
@@ -27,6 +31,7 @@ import healthRoutes from "./modules/health/health.routes.js";
 
 const fastify = fastifyModule({
   logger: false, // Using custom logger plugin
+  ignoreTrailingSlash: true,
   genReqId: (req) => req.headers["x-request-id"] || crypto.randomUUID(),
   ajv: {
     customOptions: {
@@ -53,31 +58,90 @@ async function initializeApp() {
   // 1. Initializations
   await runMigrations();
 
-  // 2. Core Infrastructure (Order Matters: DB -> Schemas -> Services -> Middlewares)
+  // 2. Global Security & Infrastructure (Register FIRST to avoid route interference)
   await fastify.register(dbPlugin);
   await fastify.register(loggerPlugin);
-  await fastify.register(errorHandlerPlugin);
-  await fastify.register(schemaPlugin);
-  await fastify.register(servicesPlugin);
-  await fastify.register(observabilityPlugin);
   
   await fastify.register(helmet, { contentSecurityPolicy: false }); 
   await fastify.register(cors, { origin: env.CORS_ORIGIN });
-  
+
   if (!isTest) {
     await setupRateLimiting(fastify);
   }
 
   // 3. Documentation & Documentation UI
-  await fastify.register(swaggerPlugin);
+  await fastify.register(swagger, {
+    openapi: {
+      info: {
+        title: "Ecommerce Product API",
+        description: "Complete e-commerce API with cart, orders, and payment workflow",
+        version: "2.1.0",
+      },
+      tags: [
+        { name: "Authentication" },
+        { name: "Products" },
+        { name: "Cart" },
+        { name: "Orders" },
+        { name: "Checkout" },
+        { name: "Statistics" },
+      ],
+      servers: [{ url: `http://localhost:${env.PORT}` }],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+    },
+  });
 
+  await fastify.register(swaggerUI, {
+    routePrefix: "/docs",
+    uiConfig: {
+      docExpansion: "list",
+      deepLinking: false,
+    },
+  });
+
+  // Explicit static asset routes for Swagger UI
+  // @fastify/static's wildcard is not matched in Fastify 5 with our custom 404 handler,
+  // so we serve each file explicitly — same pattern as the working swagger-initializer.js route.
+  const swaggerStaticDir = join("/app/node_modules/@fastify/swagger-ui", "static");
+  const swaggerAssets = [
+    { file: "swagger-ui.css",                  mime: "text/css; charset=UTF-8" },
+    { file: "index.css",                        mime: "text/css; charset=UTF-8" },
+    { file: "swagger-ui-bundle.js",             mime: "application/javascript; charset=UTF-8" },
+    { file: "swagger-ui-standalone-preset.js",  mime: "application/javascript; charset=UTF-8" },
+    { file: "swagger-ui.js",                    mime: "application/javascript; charset=UTF-8" },
+    { file: "favicon-32x32.png",                mime: "image/png" },
+    { file: "favicon-16x16.png",                mime: "image/png" },
+    { file: "logo.svg",                         mime: "image/svg+xml" },
+  ];
+
+  for (const { file, mime } of swaggerAssets) {
+    const content = readFileSync(join(swaggerStaticDir, file));
+    fastify.get(`/docs/static/${file}`, { schema: { hide: true } }, (_req, reply) => {
+      reply.header("content-type", mime).send(content);
+    });
+  }
+
+  await fastify.register(schemaPlugin);
+  await fastify.register(servicesPlugin);
+  await fastify.register(observabilityPlugin);
+  
   // 4. Security & Authentication Middleware
   await authMiddleware(fastify);
 
-  // 5. Global System Routes (No versioning)
+  // 5. Global Error & 404 Handling (Register Early to cover all routes)
+  await fastify.register(errorHandlerPlugin);
+
+  // 6. Global System Routes (No versioning)
   await fastify.register(healthRoutes);
 
-  // 6. Domain-Driven Modules (Plug & Play with Versioning)
+  // 7. Domain-Driven Modules (Plug & Play with Versioning)
   const apiV1Prefix = { prefix: "/api/v1" };
   
   await fastify.register(authRoutes, apiV1Prefix);

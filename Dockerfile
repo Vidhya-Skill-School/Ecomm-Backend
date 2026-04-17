@@ -16,6 +16,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Copy only necessary files from builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src ./src
@@ -24,6 +27,7 @@ COPY --from=builder /app/package.json ./package.json
 # Environment variables
 ENV NODE_ENV=production
 ENV PORT=3001
+ENV HOST=0.0.0.0
 
 EXPOSE 3001
 

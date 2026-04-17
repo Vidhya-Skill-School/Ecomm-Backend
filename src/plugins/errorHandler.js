@@ -73,7 +73,7 @@ async function errorHandlerPlugin(fastify, _opts) {
     // 4. Send standardized response
     const isInternal = statusCode === STATUS_CODES.INTERNAL_SERVER_ERROR;
 
-    reply.status(statusCode).send({
+    const payload = {
       success: false,
       error: {
         code: errorCode,
@@ -83,7 +83,9 @@ async function errorHandlerPlugin(fastify, _opts) {
         ...(details && { details }),
       },
       correlationId: req.correlationId,
-    });
+    };
+
+    reply.status(statusCode).send(payload);
   });
 
   fastify.setNotFoundHandler((req, reply) => {

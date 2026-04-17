@@ -73,7 +73,7 @@ async function schemaPlugin(fastify, _opts) {
     $id: "ErrorResponse",
     type: "object",
     properties: {
-      success: { type: "boolean", const: false },
+      success: { type: "boolean" },
       error: {
         type: "object",
         properties: {

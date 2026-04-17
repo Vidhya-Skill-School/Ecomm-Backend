@@ -27,11 +27,25 @@ export class AuthService {
     return res.rows[0] || null;
   }
 
+  async getUserByPhone(phone) {
+    const res = await this.db.execute({
+      sql: "SELECT id FROM users WHERE phone = ?",
+      args: [phone],
+    });
+    return res.rows[0] || null;
+  }
+
   async createUser(email, name, phone, password) {
-    // Check if user already exists
-    const existing = await this.getUserByEmail(email);
-    if (existing) {
-      throw new ConflictError(`User with email ${email} already exists`);
+    // Check for duplicate email
+    const existingEmail = await this.getUserByEmail(email);
+    if (existingEmail) {
+      throw new ConflictError(`The email address "${email}" is already registered. Please use a different email or sign in.`);
+    }
+
+    // Check for duplicate phone
+    const existingPhone = await this.getUserByPhone(phone);
+    if (existingPhone) {
+      throw new ConflictError(`The phone number "${phone}" is already registered. Please use a different phone number or sign in.`);
     }
 
     const hashedPassword = hashPassword(password);

@@ -77,4 +77,18 @@ export const logoutResponseSchema = {
   },
 };
 
-export const authErrorResponseSchema = { $ref: "ErrorResponse#" };
+export const authErrorResponseSchema = {
+  type: "object",
+  properties: {
+    success: { type: "boolean" },
+    error: {
+      type: "object",
+      properties: {
+        code: { type: "string" },
+        message: { type: "string" },
+        details: { type: "object", additionalProperties: true },
+      },
+    },
+    correlationId: { type: "string" },
+  },
+};

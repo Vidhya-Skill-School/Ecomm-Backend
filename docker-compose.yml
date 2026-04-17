@@ -7,6 +7,7 @@ services:
     env_file:
       - .env
     environment:
+      - HOST=0.0.0.0
       - ELASTICSEARCH_URL=http://ec-elastic-search:9200
     depends_on:
       elasticsearch:
@@ -16,7 +17,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 30s
     networks:
       - elk
 
