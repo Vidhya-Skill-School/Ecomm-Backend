@@ -1,17 +1,15 @@
 import { createClient } from "@libsql/client";
 import path from "path";
+import { fileURLToPath } from "url";
 
 // Use in-memory database for tests, file-based for development
 const isTest = process.env.NODE_ENV === "test";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const db = createClient({
   url: isTest
     ? "file::memory:"
-    : "file:" +
-      path.join(
-        path.dirname(import.meta.url.replace("file://", "")),
-        "ecommerce.db",
-      ),
+    : "file:" + path.join(__dirname, "ecommerce.db"),
 });
 
 /**
