@@ -24,6 +24,7 @@ export async function build() {
   }
 
   return {
+    server: appInstance,
     inject: async (options) => {
       if (!appInstance) {
         throw new Error("App not initialized");
@@ -63,7 +64,7 @@ export const createTestUser = async (app, overrides = {}) => {
 
   const response = await app.inject({
     method: "POST",
-    url: "/auth/signup",
+    url: "/api/v1/auth/signup",
     payload: userData,
   });
 
@@ -73,13 +74,14 @@ export const createTestUser = async (app, overrides = {}) => {
   }
 
   const body = JSON.parse(response.body);
-  return { user: body.user, password: userData.password };
+  const user = body.data || body.user; // Support both for safety during transition
+  return { user, password: userData.password };
 };
 
 export const getAuthToken = async (app, email, password) => {
   const response = await app.inject({
     method: "POST",
-    url: "/auth/signin",
+    url: "/api/v1/auth/signin",
     payload: { email, password },
   });
 
@@ -106,7 +108,7 @@ export const createTestProduct = async (app, accessToken, overrides = {}) => {
 
   const response = await app.inject({
     method: "POST",
-    url: "/products",
+    url: "/api/v1/products",
     headers: { authorization: `Bearer ${accessToken}` },
     payload: productData,
   });

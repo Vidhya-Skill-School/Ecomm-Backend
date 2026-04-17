@@ -1,12 +1,10 @@
-import fs from "fs";
-import path from "path";
-import readline from "readline";
-import {
-  initializeDatabase,
-  clearProducts,
-  bulkInsertProducts,
-  db,
-} from "../db.js";
+import fs from "node:fs";
+import path from "node:path";
+import readline from "node:readline";
+import db from "../db/connection.js";
+import { runMigrations } from "../db/migrate.js";
+import { ProductService } from "../modules/products/products.service.js";
+import { hashPassword } from "../services/jwt.js";
 
 // Inline ANSI colors — no extra dependency needed
 const red = (s) => `\x1b[31m${s}\x1b[0m`;
@@ -219,8 +217,6 @@ async function clearAllData() {
 
 // ─── Create first user ────────────────────────────────────────────────────────
 async function createFirstUser() {
-  const { hashPassword } = require("./jwt");
-
   console.log("\n📝 Create First User");
   console.log("==================");
 
@@ -305,10 +301,11 @@ async function createFirstUser() {
 
 // ─── Main seeder ──────────────────────────────────────────────────────────────
 async function seedDatabase() {
+  const productService = new ProductService(db);
   try {
     console.log("\n🌱 Starting database seeding...\n");
 
-    await initializeDatabase();
+    await runMigrations();
     console.log("✓ Database initialized\n");
 
     const clearExisting = await askQuestion(
@@ -336,7 +333,7 @@ async function seedDatabase() {
       );
 
       if (seedProducts.toLowerCase() !== "n") {
-        await clearProducts();
+        await productService.deleteAllProducts();
         console.log("✓ Cleared existing products");
 
         const formattedProducts = products
@@ -367,7 +364,7 @@ async function seedDatabase() {
         if (formattedProducts.length === 0) {
           console.log(red("❌ No valid products to insert"));
         } else {
-          await bulkInsertProducts(formattedProducts);
+          await productService.bulkInsertProducts(formattedProducts);
           console.log(green(`✓ Inserted ${formattedProducts.length} products`));
           if (formattedProducts.length < products.length) {
             console.log(
@@ -403,7 +400,7 @@ async function seedDatabase() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedDatabase();
 }
 

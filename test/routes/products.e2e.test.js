@@ -23,7 +23,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for negative price", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -39,7 +39,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for negative stock", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -56,7 +56,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for rating above 5", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -73,7 +73,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for empty title", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "",
@@ -89,7 +89,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for empty category", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test",
@@ -107,7 +107,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle page beyond available data", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?page=9999&limit=10",
+        url: "/api/v1/products?page=9999&limit=10",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -117,13 +117,12 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should respect max limit of 100", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?limit=500",
+        url: "/api/v1/products?limit=500",
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      console.log("Response body for limit=500:", body);
-      expect(body.error).toBe("Validation Error");
-      expect(body.details[0].issue).toBe("must be <= 100");
+      expect(body.error?.code || body.code).toBe("VALIDATION_ERROR");
+      expect(body.error?.details?.fieldErrors?.[0]?.issue).toBe("must be <= 100");
     });
   });
 });

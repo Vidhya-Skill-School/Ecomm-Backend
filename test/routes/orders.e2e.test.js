@@ -34,7 +34,7 @@ describe("Orders Routes - E2E Tests", () => {
     // Add product to cart
     await app.inject({
       method: "POST",
-      url: "/cart",
+      url: "/api/v1/cart",
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { productId: testProductId, quantity: 2 },
     });
@@ -48,7 +48,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should create checkout successfully", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street, Test City" },
       });
@@ -65,7 +65,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return 401 without authentication", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         payload: { shippingAddress: "123 Test Street" },
       });
 
@@ -80,7 +80,7 @@ describe("Orders Routes - E2E Tests", () => {
       // Create a checkout first
       const checkoutResponse = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street" },
       });
@@ -91,7 +91,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should confirm order successfully", async () => {
       const response = await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: `pay_${Date.now()}` },
       });
@@ -106,14 +106,14 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return 400 for missing paymentId", async () => {
       const response = await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {},
       });
 
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error?.code || body.code).toBe("VALIDATION_ERROR");
     });
   });
 
@@ -124,7 +124,7 @@ describe("Orders Routes - E2E Tests", () => {
       // Add product to cart again
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 1 },
       });
@@ -132,7 +132,7 @@ describe("Orders Routes - E2E Tests", () => {
       // Create a checkout
       const checkoutResponse = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street" },
       });
@@ -143,7 +143,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should cancel order successfully", async () => {
       const response = await app.inject({
         method: "POST",
-        url: `/orders/cancel/${checkoutId}`,
+        url: `/api/v1/orders/cancel/${checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { reason: "Changed my mind" },
       });
@@ -157,7 +157,7 @@ describe("Orders Routes - E2E Tests", () => {
       // Create another checkout
       const checkoutResponse = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street" },
       });
@@ -166,7 +166,7 @@ describe("Orders Routes - E2E Tests", () => {
 
       const response = await app.inject({
         method: "POST",
-        url: `/orders/cancel/${newCheckoutId}`,
+        url: `/api/v1/orders/cancel/${newCheckoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {},
       });
@@ -181,7 +181,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should get user orders", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/orders",
+        url: "/api/v1/orders",
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
@@ -193,7 +193,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return 401 without authentication", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/orders",
+        url: "/api/v1/orders",
       });
 
       expect(response.statusCode).toBe(401);
@@ -207,14 +207,14 @@ describe("Orders Routes - E2E Tests", () => {
       // Create and confirm an order
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 1 },
       });
 
       const checkoutResponse = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street" },
       });
@@ -222,7 +222,7 @@ describe("Orders Routes - E2E Tests", () => {
 
       const confirmResponse = await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutBody.checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutBody.checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: `pay_${Date.now()}` },
       });
@@ -233,7 +233,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should track order by order number", async () => {
       const response = await app.inject({
         method: "GET",
-        url: `/orders/track/${orderNumber}`,
+        url: `/api/v1/orders/track/${orderNumber}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -245,12 +245,12 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return 404 for non-existent order", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/orders/track/INVALID-ORDER-123",
+        url: "/api/v1/orders/track/INVALID-ORDER-123",
       });
 
       expect(response.statusCode).toBe(404);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Order not found");
+      expect(body.error?.message || body.message).toBe("Order not found");
     });
   });
 
@@ -261,14 +261,14 @@ describe("Orders Routes - E2E Tests", () => {
       // Create and confirm an order
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 1 },
       });
 
       const checkoutResponse = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test Street" },
       });
@@ -276,7 +276,7 @@ describe("Orders Routes - E2E Tests", () => {
 
       const confirmResponse = await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutBody.checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutBody.checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: `pay_${Date.now()}` },
       });
@@ -287,7 +287,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should get specific order by ID", async () => {
       const response = await app.inject({
         method: "GET",
-        url: `/orders/${orderId}`,
+        url: `/api/v1/orders/${orderId}`,
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
@@ -301,13 +301,13 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return 404 for non-existent order", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/orders/999999999",
+        url: "/api/v1/orders/999999999",
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
       expect(response.statusCode).toBe(404);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Order not found");
+      expect(body.error?.message || body.message).toBe("Order not found");
     });
 
     it("should return 403 for order belonging to another user", async () => {
@@ -321,13 +321,16 @@ describe("Orders Routes - E2E Tests", () => {
 
       const response = await app.inject({
         method: "GET",
-        url: `/orders/${orderId}`,
+        url: `/api/v1/orders/${orderId}`,
         headers: { authorization: `Bearer ${anotherToken}` },
       });
 
-      expect(response.statusCode).toBe(403);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Access denied");
+      if (response.statusCode !== 403) {
+        console.log("DEBUG - 403 test failed. Received body:", JSON.stringify(body, null, 2));
+      }
+      expect(response.statusCode).toBe(403);
+      expect(body.error?.message || body.message).toBe("You do not have permission to view this order");
     });
   });
 
@@ -335,7 +338,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return all categories", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/categories",
+        url: "/api/v1/categories",
       });
 
       expect(response.statusCode).toBe(200);
@@ -348,7 +351,7 @@ describe("Orders Routes - E2E Tests", () => {
     it("should return API statistics", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/statistics",
+        url: "/api/v1/statistics",
       });
 
       expect(response.statusCode).toBe(200);

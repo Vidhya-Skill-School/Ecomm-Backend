@@ -37,7 +37,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     it("should return 404 for non-existent product", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: 999999, quantity: 1 },
       });
@@ -47,7 +47,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     it("should return 400 for quantity zero", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 0 },
       });
@@ -57,7 +57,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     it("should return 400 for negative quantity", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: -5 },
       });
@@ -73,7 +73,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
 
       const response = await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: lowStockProduct.id, quantity: 10 },
       });
@@ -87,14 +87,14 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     beforeEach(async () => {
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 2 },
       });
 
       const cart = await app.inject({
         method: "GET",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
       });
       const cartBody = JSON.parse(cart.body);
@@ -104,7 +104,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     afterEach(async () => {
       await app.inject({
         method: "DELETE",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
       });
     });
@@ -112,7 +112,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     it("should return 404 for non-existent cart item", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: "/cart/999999",
+        url: "/api/v1/cart/999999",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { quantity: 5 },
       });
@@ -122,7 +122,7 @@ describe("Cart - Edge Cases (95% Coverage)", () => {
     it("should remove item when quantity set to 0", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: `/cart/${cartItemId}`,
+        url: `/api/v1/cart/${cartItemId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { quantity: 0 },
       });

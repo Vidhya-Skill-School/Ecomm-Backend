@@ -4,16 +4,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["test/routes/*.e2e.test.js"],
+    include: ["test/**/*.test.js"],
     exclude: ["node_modules", "test/helper.js", "coverage"],
     testTimeout: 30000,
     hookTimeout: 30000,
-    threads: false,
-    isolate: false,
+    globalSetup: ["./test/globalSetup.js"],
     coverage: {
       provider: "v8",
       enabled: true,
-      reporter: ["text", "html", "json", "lcov", "clover"],
+      reporter: ["text", "text-summary", "html", "json", "lcov", "clover"],
       reportsDirectory: "./coverage",
       include: ["src/**/*.js", "src/*.js", "db.js", "schema.js"],
       exclude: [

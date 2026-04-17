@@ -1,13 +1,11 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { env } from "../config/env.js";
 
-// In production, use environment variables
-const JWT_SECRET =
-  process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
-const REFRESH_TOKEN_SECRET =
-  process.env.REFRESH_TOKEN_SECRET || crypto.randomBytes(32).toString("hex");
-const JWT_EXPIRY = "15m"; // 15 minutes
-const REFRESH_TOKEN_EXPIRY = "7d"; // 7 days
+const JWT_SECRET = env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = env.JWT_REFRESH_SECRET;
+const JWT_EXPIRY = env.JWT_EXPIRES_IN;
+const REFRESH_TOKEN_EXPIRY = env.JWT_REFRESH_EXPIRES_IN;
 
 /**
  * Generate access token

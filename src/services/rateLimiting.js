@@ -1,5 +1,8 @@
 import rateLimit from "@fastify/rate-limit";
-const isTest = process.env.NODE_ENV === "test";
+import { env } from "../config/env.js";
+import { STATUS_CODES } from "../shared/constants.js";
+
+const isTest = env.NODE_ENV === "test";
 
 async function setupRateLimiting(fastify) {
   if (isTest) {
@@ -8,15 +11,15 @@ async function setupRateLimiting(fastify) {
   }
 
   await fastify.register(rateLimit, {
-    max: 100, // Max 100 requests per time window
-    timeWindow: "1 minute", // Per minute
+    max: env.RATE_LIMIT_MAX,
+    timeWindow: env.RATE_LIMIT_TIME_WINDOW,
     keyGenerator: (req) => {
       // Use user ID if authenticated, otherwise IP
       return req.userId || req.ip;
     },
     errorResponseBuilder: (req, context) => {
       return {
-        statusCode: 429,
+        statusCode: STATUS_CODES.TOO_MANY_REQUESTS,
         error: "Too Many Requests",
         message: `Rate limit exceeded. Try again in ${Math.ceil(context.ttl / 1000)} seconds.`,
         retryAfter: Math.ceil(context.ttl / 1000),

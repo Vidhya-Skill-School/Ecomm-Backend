@@ -1,26 +1,24 @@
-import { validateAccessToken } from "./session.js";
+import { STATUS_CODES } from "../shared/constants.js";
 
 async function authMiddleware(fastify) {
   fastify.decorate("authenticate", async (request, reply) => {
     try {
-      // Get token from Authorization header
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return reply.code(401).send({
-          statusCode: 401,
-          error: "Unauthorized",
+        return reply.code(STATUS_CODES.UNAUTHORIZED).send({
+          code: "UNAUTHORIZED",
           message: "Missing or invalid authorization token",
         });
       }
 
-      const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+      const token = authHeader.substring(7);
 
-      // Validate token from database
-      const session = await validateAccessToken(token);
+      // Use the decorated authService from the Fastify server instance
+      const session = await request.server.authService.validateAccessToken(token);
+      
       if (!session) {
-        return reply.code(401).send({
-          statusCode: 401,
-          error: "Unauthorized",
+        return reply.code(STATUS_CODES.UNAUTHORIZED).send({
+          code: "UNAUTHORIZED",
           message: "Invalid or expired token",
         });
       }
@@ -34,10 +32,9 @@ async function authMiddleware(fastify) {
       request.userId = session.userId;
       request.accessToken = token;
     } catch (error) {
-      fastify.log.error(error);
-      return reply.code(401).send({
-        statusCode: 401,
-        error: "Unauthorized",
+      request.log.error(error, "Authentication middleware error");
+      return reply.code(STATUS_CODES.UNAUTHORIZED).send({
+        code: "UNAUTHORIZED",
         message: "Authentication failed",
       });
     }

@@ -1,8 +1,4 @@
 import { beforeAll, afterAll } from "vitest";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
 
 beforeAll(async () => {
   // Ensure database is initialized

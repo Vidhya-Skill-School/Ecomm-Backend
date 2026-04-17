@@ -37,13 +37,13 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
     it("should return 400 when cart is empty", async () => {
       await app.inject({
         method: "DELETE",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
       const response = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test St" },
       });
@@ -53,14 +53,14 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
     it("should handle checkout without shipping address", async () => {
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 1 },
       });
 
       const response = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {},
       });
@@ -72,7 +72,7 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
     it("should return 404 for non-existent checkoutId", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/orders/confirm/non-existent-id",
+        url: "/api/v1/orders/confirm/non-existent-id",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: "pay_123" },
       });
@@ -82,14 +82,14 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
     it("should return 400 for already confirmed order", async () => {
       await app.inject({
         method: "POST",
-        url: "/cart",
+        url: "/api/v1/cart",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { productId: testProductId, quantity: 1 },
       });
 
       const checkout = await app.inject({
         method: "POST",
-        url: "/checkout",
+        url: "/api/v1/checkout",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { shippingAddress: "123 Test St" },
       });
@@ -97,14 +97,14 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
 
       await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: `pay_${Date.now()}` },
       });
 
       const response = await app.inject({
         method: "POST",
-        url: `/orders/confirm/${checkoutId}`,
+        url: `/api/v1/orders/confirm/${checkoutId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { paymentId: `pay_${Date.now()}` },
       });
@@ -116,7 +116,7 @@ describe("Orders - Edge Cases (95% Coverage)", () => {
     it("should return 404 for non-existent checkoutId", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/orders/cancel/non-existent-id",
+        url: "/api/v1/orders/cancel/non-existent-id",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { reason: "Test" },
       });

@@ -3,13 +3,12 @@ import { build, createTestUser, getAuthToken } from "../helper.js";
 
 describe("Authentication - Edge Cases (95% Coverage)", () => {
   let app;
-  let accessToken;
   let testUser;
 
   beforeAll(async () => {
     app = await build();
     testUser = await createTestUser(app);
-    accessToken = await getAuthToken(
+    await getAuthToken(
       app,
       testUser.user.email,
       testUser.password,
@@ -24,7 +23,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 400 for password shorter than 6 characters", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: `test_${Date.now()}@example.com`,
           name: "Test User",
@@ -39,7 +38,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
       const longPassword = "a".repeat(101);
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: `test_${Date.now()}@example.com`,
           name: "Test User",
@@ -55,7 +54,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 400 for phone with letters", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: `test_${Date.now()}@example.com`,
           name: "Test User",
@@ -69,7 +68,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 400 for phone with 9 digits", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: `test_${Date.now()}@example.com`,
           name: "Test User",
@@ -85,7 +84,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 400 for email without @ symbol", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: "testexample.com",
           name: "Test User",
@@ -99,7 +98,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 400 for email with spaces", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: "test @example.com",
           name: "Test User",
@@ -115,7 +114,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 401 for malformed authorization header", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/account",
+        url: "/api/v1/account",
         headers: { authorization: "InvalidFormat" },
       });
       expect(response.statusCode).toBe(401);
@@ -124,7 +123,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 401 for empty token", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/account",
+        url: "/api/v1/account",
         headers: { authorization: "Bearer " },
       });
       expect(response.statusCode).toBe(401);
@@ -133,7 +132,7 @@ describe("Authentication - Edge Cases (95% Coverage)", () => {
     it("should return 401 for tampered token", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/account",
+        url: "/api/v1/account",
         headers: { authorization: "Bearer tampered.token.here" },
       });
       expect(response.statusCode).toBe(401);

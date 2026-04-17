@@ -31,7 +31,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: testEmail,
           name: "E2E Test User",
@@ -42,9 +42,9 @@ describe("Authentication Routes - E2E Tests", () => {
 
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("User registered successfully");
-      expect(body.user).toHaveProperty("id");
-      expect(body.user.email).toBe(testEmail);
+      expect(body.error?.message || body.message).toBe("User registered successfully");
+      expect(body.data).toHaveProperty("id");
+      expect(body.data.email).toBe(testEmail);
     });
 
     it("should return 409 for duplicate email", async () => {
@@ -52,7 +52,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: testEmail,
           name: "First User",
@@ -63,7 +63,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: testEmail,
           name: "Second User",
@@ -74,13 +74,13 @@ describe("Authentication Routes - E2E Tests", () => {
 
       expect(response.statusCode).toBe(409);
       const body = JSON.parse(response.body);
-      expect(body.message).toContain("already exists");
+      expect(body.error?.message || body.message).toContain("already exists");
     });
 
     it("should return 400 for invalid email format", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signup",
+        url: "/api/v1/auth/signup",
         payload: {
           email: "invalid-email",
           name: "Test User",
@@ -91,7 +91,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error?.code || body.code).toBe("VALIDATION_ERROR");
     });
   });
 
@@ -99,7 +99,7 @@ describe("Authentication Routes - E2E Tests", () => {
     it("should login successfully with valid credentials", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signin",
+        url: "/api/v1/auth/signin",
         payload: {
           email: testUser.user.email,
           password: testUser.password,
@@ -108,7 +108,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Login successful");
+      expect(body.error?.message || body.message).toBe("Login successful");
       expect(body).toHaveProperty("accessToken");
       expect(body).toHaveProperty("refreshToken");
     });
@@ -116,7 +116,7 @@ describe("Authentication Routes - E2E Tests", () => {
     it("should return 401 for invalid password", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/auth/signin",
+        url: "/api/v1/auth/signin",
         payload: {
           email: testUser.user.email,
           password: "wrongpassword",
@@ -125,7 +125,7 @@ describe("Authentication Routes - E2E Tests", () => {
 
       expect(response.statusCode).toBe(401);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Invalid email or password");
+      expect(body.error?.message || body.message).toBe("Invalid email or password");
     });
   });
 
@@ -133,7 +133,7 @@ describe("Authentication Routes - E2E Tests", () => {
     it("should get user account details with valid token", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/account",
+        url: "/api/v1/account",
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
@@ -147,7 +147,7 @@ describe("Authentication Routes - E2E Tests", () => {
     it("should return 401 without authorization header", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/account",
+        url: "/api/v1/account",
       });
 
       expect(response.statusCode).toBe(401);

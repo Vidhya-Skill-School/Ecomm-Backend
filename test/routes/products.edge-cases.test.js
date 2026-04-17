@@ -23,7 +23,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for negative price", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -35,13 +35,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for negative stock", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -54,13 +54,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for rating above 5", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -73,13 +73,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for rating below 1", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -92,13 +92,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for empty title", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "",
@@ -110,13 +110,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for empty description", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test Product",
@@ -128,13 +128,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for empty category", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test",
@@ -146,13 +146,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 for empty brand", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: "Test",
@@ -164,13 +164,13 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should create product with valid data", async () => {
       const response = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: `Valid_Product_${Date.now()}`,
@@ -193,7 +193,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle page beyond available data", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?page=9999&limit=10",
+        url: "/api/v1/products?page=9999&limit=10",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -204,7 +204,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 when limit exceeds maximum of 100", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?limit=500",
+        url: "/api/v1/products?limit=500",
       });
       // API returns 400 because limit > 100 is invalid
       expect(response.statusCode).toBe(400);
@@ -213,7 +213,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should accept limit of 100 (maximum allowed)", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?limit=100",
+        url: "/api/v1/products?limit=100",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -223,7 +223,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should accept limit of 1 (minimum allowed)", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?limit=1",
+        url: "/api/v1/products?limit=1",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -233,17 +233,17 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 400 for limit less than 1", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?limit=0",
+        url: "/api/v1/products?limit=0",
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should default to limit 10 when no limit provided", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products",
+        url: "/api/v1/products",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -253,7 +253,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should default to page 1 when no page provided", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products",
+        url: "/api/v1/products",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -265,7 +265,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle minPrice greater than maxPrice", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?minPrice=100&maxPrice=50",
+        url: "/api/v1/products?minPrice=100&maxPrice=50",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -275,7 +275,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle search with special characters", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?search=%40%23%24%25",
+        url: "/api/v1/products?search=%40%23%24%25",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -285,7 +285,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle search with empty string", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?search=",
+        url: "/api/v1/products?search=",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -295,7 +295,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should filter by rating", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?rating=4",
+        url: "/api/v1/products?rating=4",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -305,11 +305,11 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should handle invalid rating value", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?rating=invalid",
+        url: "/api/v1/products?rating=invalid",
       });
-      expect(response.statusCode).toBe(200); // Should ignore invalid rating
+      expect(response.statusCode).toBe(400); // Now strictly validated by schema
       const body = JSON.parse(response.body);
-      expect(body.data).toBeDefined();
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
   });
 
@@ -317,7 +317,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should sort by price ascending", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?sortBy=price&sortOrder=ASC",
+        url: "/api/v1/products?sortBy=price&sortOrder=ASC",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -327,7 +327,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should sort by title descending", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?sortBy=title&sortOrder=DESC",
+        url: "/api/v1/products?sortBy=title&sortOrder=DESC",
       });
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
@@ -337,21 +337,21 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should default to createdAt DESC when invalid sortBy provided", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?sortBy=invalidField",
+        url: "/api/v1/products?sortBy=invalidField",
       });
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.data).toBeDefined();
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should default to DESC when invalid sortOrder provided", async () => {
       const response = await app.inject({
         method: "GET",
-        url: "/products?sortOrder=INVALID",
+        url: "/api/v1/products?sortOrder=INVALID",
       });
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.data).toBeDefined();
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
   });
 
@@ -362,7 +362,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       // Create a test product for update tests
       const createResponse = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: `Update_Test_${Date.now()}`,
@@ -380,43 +380,43 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 404 for updating non-existent product", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: "/products/999999999",
+        url: "/api/v1/products/999999999",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { price: 100 },
       });
       expect(response.statusCode).toBe(404);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Product not found");
+      expect(body.error.message).toBe("Product not found");
     });
 
     it("should return 400 when updating with negative price", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { price: -50 },
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should return 400 when updating with negative stock", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { stock: -10 },
       });
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe("Validation Error");
+      expect(body.error.code).toBe("VALIDATION_ERROR");
     });
 
     it("should successfully update product with valid data", async () => {
       const response = await app.inject({
         method: "PATCH",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: { price: 149.99, stock: 25 },
       });
@@ -435,7 +435,7 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       // Create a test product for deletion tests
       const createResponse = await app.inject({
         method: "POST",
-        url: "/products",
+        url: "/api/v1/products",
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
           title: `Delete_Test_${Date.now()}`,
@@ -453,18 +453,18 @@ describe("Products - Edge Cases (95% Coverage)", () => {
     it("should return 404 for deleting non-existent product", async () => {
       const response = await app.inject({
         method: "DELETE",
-        url: "/products/999999999",
+        url: "/api/v1/products/999999999",
         headers: { authorization: `Bearer ${accessToken}` },
       });
       expect(response.statusCode).toBe(404);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Product not found");
+      expect(body.error.message).toBe("Product not found");
     });
 
     it("should successfully delete a product", async () => {
       const response = await app.inject({
         method: "DELETE",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
       });
       expect(response.statusCode).toBe(200);
@@ -476,19 +476,19 @@ describe("Products - Edge Cases (95% Coverage)", () => {
       // First delete
       await app.inject({
         method: "DELETE",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
       });
 
       // Try to delete again
       const response = await app.inject({
         method: "DELETE",
-        url: `/products/${testProductId}`,
+        url: `/api/v1/products/${testProductId}`,
         headers: { authorization: `Bearer ${accessToken}` },
       });
       expect(response.statusCode).toBe(404);
       const body = JSON.parse(response.body);
-      expect(body.message).toBe("Product not found");
+      expect(body.error.message).toBe("Product not found");
     });
   });
 });
