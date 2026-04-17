@@ -5,7 +5,6 @@ import crypto from "node:crypto";
 import { env } from "./config/env.js";
 
 import compress from "@fastify/compress";
-import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
@@ -47,9 +46,6 @@ const fastify = fastifyModule({
     },
   },
 });
-
-fastify.setValidatorCompiler(validatorCompiler);
-fastify.setSerializerCompiler(serializerCompiler);
 
 const isTest = env.NODE_ENV === "test";
 let initialized = false;
