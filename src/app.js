@@ -9,7 +9,8 @@ import compress from "@fastify/compress";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
 
 // Services/Helpers
 import { setupRateLimiting } from "./services/rateLimiting.js";
@@ -49,6 +50,7 @@ const fastify = fastifyModule({
 
 const isTest = env.NODE_ENV === "test";
 let initialized = false;
+const require = createRequire(import.meta.url);
 
 /**
  * Enterprise Application Entry Point
@@ -114,7 +116,8 @@ async function initializeApp() {
   // Explicit static asset routes for Swagger UI
   // @fastify/static's wildcard is not matched in Fastify 5 with our custom 404 handler,
   // so we serve each file explicitly — same pattern as the working swagger-initializer.js route.
-  const swaggerStaticDir = join("/app/node_modules/@fastify/swagger-ui", "static");
+  const swaggerUIPackageJsonPath = require.resolve("@fastify/swagger-ui/package.json");
+  const swaggerStaticDir = join(dirname(swaggerUIPackageJsonPath), "static");
   const swaggerAssets = [
     { file: "swagger-ui.css", mime: "text/css; charset=UTF-8" },
     { file: "index.css", mime: "text/css; charset=UTF-8" },

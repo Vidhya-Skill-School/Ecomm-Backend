@@ -14,64 +14,16 @@
 
 We use a modular documentation system for rapid reference:
 
--   [🚀 **Step-by-Step Installation**](./docs/SETUP.md) — Manual & Docker setup.
--   [🌍 **Environment Variables**](./docs/ENVIRONMENT.md) — Full configuration guide.
--   [📊 **Logging & Monitoring**](./docs/LOGGING.md) — ELK stack setup and usage.
--   [🛰️ **API Reference**](./docs/API.md) — Auth flow and Endpoint mapping.
+- [🚀 **Step-by-Step Installation**](./docs/SETUP.md) — Manual & Docker setup.
+- [🌍 **Environment Variables**](./docs/ENVIRONMENT.md) — Full configuration guide.
+- [📊 **Logging & Monitoring**](./docs/LOGGING.md) — ELK stack setup and usage.
+- [🛰️ **API Reference**](./docs/API.md) — Auth flow and Endpoint mapping.
 
 ---
 
 ## 🛠️ Prerequisite Installation
 
 Before starting, ensure you have the core tools installed on your host machine.
-
-### 1. Docker (Required for ELK)
-
-* **macOS:**
-  `brew install --cask docker`
-  Or download Docker Desktop from: (or download [Docker Desktop](https://www.docker.com/products/docker-desktop/))
-
-* **Ubuntu:**
-  `sudo apt install docker.io docker-compose`
-
-* **Windows (Windows 10/11 Pro, Enterprise, Education):**
-
-  * Download and install Docker Desktop
-  * Enable **WSL 2 (Windows Subsystem for Linux)** when prompted
-  * Restart your system after installation
-  * Ensure Docker Desktop is running
-
-* **Windows (if WSL 2 is not installed):**
-
-  * Run:
-
-    ```powershell
-    wsl --install
-    ```
-  * Then install Docker Desktop and select **WSL 2 backend**
-
----
-
-### Quick Notes
-
-* Ensure **virtualization is enabled** in BIOS
-* Windows Home requires **WSL 2**
-* Verify installation:
-
-  ```bash
-  docker --version
-  docker compose version
-  ```
-
-
-### 2. Node.js & pnpm
-*   **Node.js v20+:** `nvm install 20 && nvm use 20`
-*   **pnpm:** `corepack enable pnpm`
-```bash
-pnpm install
-```
-
----
 
 ## Setup .env file (create .env file in root directory)
 
@@ -85,8 +37,66 @@ JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 DATABASE_URL=file:./ecommerce.db
 ```
-#  
 
+#
+
+## Do you want to run without Docker? Then follow below steps
+
+```bash
+pnpm install
+pnpm seed # Follow & complete setup & first user
+pnpm dev #You should be able to see your server & API docs URL
+```
+
+## Follow below steps for docker
+
+### 1. Docker (Required for ELK)
+
+- **macOS:**
+  `brew install --cask docker`
+  Or download Docker Desktop from: (or download [Docker Desktop](https://www.docker.com/products/docker-desktop/))
+
+- **Ubuntu:**
+  `sudo apt install docker.io docker-compose`
+
+- **Windows (Windows 10/11 Pro, Enterprise, Education):**
+  - Download and install Docker Desktop
+  - Enable **WSL 2 (Windows Subsystem for Linux)** when prompted
+  - Restart your system after installation
+  - Ensure Docker Desktop is running
+
+- **Windows (if WSL 2 is not installed):**
+  - Run:
+
+    ```powershell
+    wsl --install
+    ```
+
+  - Then install Docker Desktop and select **WSL 2 backend**
+
+---
+
+### Quick Notes
+
+- Ensure **virtualization is enabled** in BIOS
+- Windows Home requires **WSL 2**
+- Verify installation:
+
+  ```bash
+  docker --version
+  docker compose version
+  ```
+
+### 2. Node.js & pnpm
+
+- **Node.js v20+:** `nvm install 20 && nvm use 20`
+- **pnpm:** `corepack enable pnpm`
+
+```bash
+pnpm install
+```
+
+---
 
 ## 🚀 Quick Start (Docker)
 
@@ -95,11 +105,11 @@ DATABASE_URL=file:./ecommerce.db
 docker compose up --build -d
 ```
 
-| Service | URL |
-| :--- | :--- |
-| **API Base** | [http://localhost:3001/api/v1](http://localhost:3001/api/v1) |
-| **Swagger UI** | [http://localhost:3001/docs](http://localhost:3001/docs) |
-| **Kibana UI** | [http://localhost:5601](http://localhost:5601) |
+| Service        | URL                                                          |
+| :------------- | :----------------------------------------------------------- |
+| **API Base**   | [http://localhost:3001/api/v1](http://localhost:3001/api/v1) |
+| **Swagger UI** | [http://localhost:3001/docs](http://localhost:3001/docs)     |
+| **Kibana UI**  | [http://localhost:5601](http://localhost:5601)               |
 
 ---
 
@@ -118,10 +128,10 @@ The following commands are essential for managing your containerized infrastruct
 | **Force Termination**            | `docker compose kill`                            |
 | **Pause Execution**              | `docker compose pause`                           |
 
-
 ---
 
 ## ⚙️ Configuration Preview
+
 The application behavior is driven by the `.env` file. For a deep dive into what each variable does, check the link below.
 
 [👉 View Full Environment variable Guide](./docs/ENVIRONMENT.md)

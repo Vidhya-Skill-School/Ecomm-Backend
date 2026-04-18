@@ -15,18 +15,21 @@ void (async () => {
 
     server = await initializeApp();
 
+    console.log(`🚀 Starting server on ${env.HOST}:${env.PORT}...`);
     await server.listen({
       port: env.PORT,
       host: env.HOST,
     });
+    console.log("✅ Server is listening.");
 
     // Graceful Shutdown Handler
     const shutdown = async (signal) => {
-      server.logger.info(`Received ${signal}. Shutting down gracefully...`);
+      const log = server.logger || console;
+      log.info(`Received ${signal}. Shutting down gracefully...`);
 
       // 1. Close the server (stops accepting new connections)
       await server.close();
-      server.logger.info("Server connections successfully closed.");
+      log.info("Server connections successfully closed.");
 
       // 2. Shut down external storage/logging sinks
       try {
@@ -46,7 +49,7 @@ void (async () => {
         console.error("❌ Error during connection cleanup:", err);
       }
 
-      server.logger.info("Graceful shutdown completed. Process exiting.");
+      log.info("Graceful shutdown completed. Process exiting.");
       process.exit(0);
     };
 
@@ -72,10 +75,10 @@ void (async () => {
     console.log(`Health: http://localhost:${env.PORT}/health`);
     console.log("========================================\n");
   } catch (err) {
-    if (server) {
-      server.log.error(err);
-    } else {
-      console.error("Initialization failed:", err);
+    console.error("❌ Initialization failed:");
+    console.error(err);
+    if (server && server.logger) {
+      server.logger.error(err);
     }
     process.exit(1);
   }
