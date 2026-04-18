@@ -73,10 +73,10 @@ pnpm install
 
 ---
 
-## Setup .env file
+## Setup .env file (create .env file in root directory)
 
 ```bash
-NODE_ENV=production
+NODE_ENV=development
 PORT=3001
 HOST=localhost
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -85,7 +85,7 @@ JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 DATABASE_URL=file:./ecommerce.db
 ```
-# create .env file  
+#  
 
 
 ## 🚀 Quick Start (Docker)
