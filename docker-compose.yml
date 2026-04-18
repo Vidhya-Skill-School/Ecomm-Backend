@@ -14,8 +14,8 @@ services:
     volumes:
       - ./src:/app/src
     depends_on:
-      elasticsearch:
-        condition: service_healthy
+      elasticsearch-setup:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -48,6 +48,25 @@ services:
       timeout: 5s
       retries: 5
 
+  elasticsearch-setup:
+    build:
+      context: .
+      target: development
+    container_name: EC-Elasticsearch-Setup
+    env_file:
+      - .env
+    environment:
+      - ELASTICSEARCH_URL=http://ec-elastic-search:9200
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    command: ["node", "src/scripts/setup-elasticsearch.js"]
+    networks:
+      - elk
+    restart: "no"
+
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
     container_name: EC-Kibana-Dashboard
@@ -65,6 +84,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  kibana-setup:
+    build:
+      context: .
+      target: development
+    container_name: EC-Kibana-Setup
+    env_file:
+      - .env
+    environment:
+      - KIBANA_URL=http://kibana:5601
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      kibana:
+        condition: service_healthy
+      elasticsearch-setup:
+        condition: service_completed_successfully
+    command: ["node", "src/scripts/setup-kibana.js"]
+    networks:
+      - elk
+    restart: "no"
 
 volumes:
   elasticsearch_data:

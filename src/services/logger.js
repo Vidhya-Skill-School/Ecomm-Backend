@@ -27,13 +27,8 @@ const initializeLogger = async () => {
 
   if (shouldEnableElastic) {
     try {
-      console.log(`🔍 Checking Elasticsearch connectivity: ${env.ELASTICSEARCH_URL}`);
       esClient = new Client({ node: env.ELASTICSEARCH_URL });
-
-      // Ping with a short timeout (2s) to avoid hanging startup if ES is down
-      await esClient.ping({ requestTimeout: 2000 });
-
-      console.log("✅ Elasticsearch is reachable. Enabling remote logging.");
+      console.log("✅ Connecting to Elasticsearch for remote logging.");
 
       const streamToElastic = pinoElastic({
         index: env.ELASTIC_INDEX_PREFIX,

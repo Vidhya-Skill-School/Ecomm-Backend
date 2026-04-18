@@ -35,6 +35,17 @@ const envSchema = z.object({
   ELASTICSEARCH_URL: z.url().optional(),
   ELASTIC_INDEX_PREFIX: z.string().default("ecommerce-logs"),
   PRETTY_LOGS: booleanSchema.default(true),
+  ELASTICSEARCH_MAX_RETRIES: z.coerce.number().default(15),
+  ELASTICSEARCH_RETRY_DELAY_MS: z.coerce.number().default(2000),
+  ENABLED_ELASTIC_LOGS: booleanSchema.default(true),
+
+  // Kibana Settings
+  KIBANA_URL: z.url().default("http://localhost:5601"),
+  KIBANA_DATA_VIEW_TITLE: z.string().default("ecommerce-logs*"),
+  KIBANA_DATA_VIEW_NAME: z.string().default("E-Commerce Logs"),
+  KIBANA_TIME_FIELD: z.string().default("@timestamp"),
+  KIBANA_MAX_RETRIES: z.coerce.number().default(10),
+  KIBANA_RETRY_DELAY_MS: z.coerce.number().default(3000),
 
   // Rate Limiting
   RATE_LIMIT_MAX: z.coerce.number().default(100),
